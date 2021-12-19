@@ -16,29 +16,30 @@ import { thingsToDo } from '../townshipInfo';
 import { genCommands, MyCommand } from '../townshipCommands';
 import './App.css';
 
-
-
 function TownshipVoiceInterface() {
   const [isVoiceRecognitionSupported, setVoiceRecognitionSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [speechLog, setSpeechLog] = useState<string[]>([]);
+  const [devLog, setDevLog] = useState<string[]>([]);
   const [firstClickDone, setFirstClickDone] = useState(false);
 
   const { speak, voices } = useSpeechSynthesis({
     onEnd: () => {
       setIsListening(true);
+      console.log('started listening after speaking')
       SpeechRecognition.startListening({
         continuous: true,
       });
     }
   });
 
-  const moira = voices.find(({ name }: { name: string }) => name === 'Moira')
-
   const genNextIdea = useCycler(thingsToDo)
 
   const commands = genCommands(logAndSpeak, genNextIdea);
-  const { transcript, resetTranscript } = useSpeechRecognition({ commands })
+  //@ts-ignore
+  const { transcript, resetTranscript, browserSupportsContinuousListening } = useSpeechRecognition({ commands })
+
+
 
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
@@ -51,14 +52,17 @@ function TownshipVoiceInterface() {
     SpeechRecognition.startListening({
       continuous: true,
     });
+    console.log('started listening');
     setVoiceRecognitionSupported(true)
 
     function deregisterVoiceRecognition() {
       console.log('deregistering voice recognition')
-      SpeechRecognition.stopListening();
+      SpeechRecognition.abortListening();
     }
     return deregisterVoiceRecognition;
   }, []);
+
+  const moira = voices.find(({ name }: { name: string }) => name === 'Moira')
 
 
 
@@ -66,15 +70,21 @@ function TownshipVoiceInterface() {
     const fullObj = { text: obj.text, voice: moira }
     console.log('attempting to speak: ', fullObj)
     setSpeechLog(prev => [...prev, fullObj.text]);
-    setIsListening(false);
-    SpeechRecognition.stopListening();
+    setIsListening(prev => {
+      if (!prev) {
+        setDevLog(prev => [...prev, "logAndSpeak called when we're already speaking. queue instead."]);
+      }
+      return false;
+    });
+    console.log('stopping listening because starting to speak')
+    SpeechRecognition.abortListening();
     speak(fullObj);
   }
 
   return (
     <div className="App">
 
-      <VoiceRecognitionSupportWarning {...{ isVoiceRecognitionSupported }} />
+      <VoiceRecognitionSupportWarning supported={isVoiceRecognitionSupported} continuous={browserSupportsContinuousListening} />
 
       <br />
       {firstClickDone ?
@@ -86,6 +96,7 @@ function TownshipVoiceInterface() {
           <div>Listening? {isListening ? 'YES' : 'NO'}</div>
           <StuffYouCanSay commands={commands} />
           <SpeechLog speechLog={speechLog} />
+          <DevLog devLog={devLog} />
         </>
         :
         <><button onClick={() => { setFirstClickDone(true) }}>Click to start!</button>
@@ -126,12 +137,28 @@ function SpeechLog(props: SpeechLogProps) {
     </>
   );
 }
+interface DevLogProps {
+  devLog: string[];
+}
+function DevLog(props: DevLogProps) {
+  return (
+    <>
+      <h2>Dev log</h2>
+      <div className='devLog'>
+        {
+          [...props.devLog].reverse().map((line, ix) => <li key={ix}>{line}</li>)
+        }
+      </div>
+    </>
+  );
+}
 
 
-function VoiceRecognitionSupportWarning({ isVoiceRecognitionSupported }: { isVoiceRecognitionSupported: boolean }) {
-  if (isVoiceRecognitionSupported) {
-    return <div>Voice recognition supported</div>;
-  } else {
-    return <div className='warning'>WARNING!: Voice recognition is unsupported on this browser.  Try google chrome.</div>
-  }
+function VoiceRecognitionSupportWarning({ supported, continuous }: { supported: boolean, continuous: boolean }) {
+  return <>
+    {supported ? <div>Voice recognition supported</div>
+      : <div className='warning'>WARNING!: Voice recognition is unsupported on this browser.  Try google chrome.</div>}
+    {continuous ? <div>Continuous listening supported</div>
+      : <div className='warning'>WARNING!: Continuous listening not supported.</div>}
+  </>
 }
