@@ -1,0 +1,13 @@
+body {
+  font-size: 3vh;
+  /* font-family: "Abel"; */
+  font-family: "Merriweather";
+  line-height: 2rem;
+}
+
+.warning {
+  background: salmon;
+  font-size: 2rem;
+  border: 2px solid black;
+  border-radius: 5px;
+}
