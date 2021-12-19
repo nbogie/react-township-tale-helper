@@ -11,137 +11,91 @@ import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognitio
 
 //@ts-ignore
 import { useSpeechSynthesis } from 'react-speech-kit';
-import './App.css';
 import { useCycler } from '../utils';
 import { howDoYouMake, thingsToDo, whatCanBeMade, whereIsThe, whereIsTheShrine } from '../townshipInfo';
+import { genCommands, MyCommand } from '../townshipCommands';
+import './App.css';
 
-
-interface MyCommand {
-  command: string | RegExp;
-  callback: (item: string) => void
-}
 
 
 function TownshipVoiceInterface() {
   const [isVoiceRecognitionSupported, setVoiceRecognitionSupported] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechLog, setSpeechLog] = useState<string[]>([]);
   const [firstClickDone, setFirstClickDone] = useState(false);
-  const { speak, voices } = useSpeechSynthesis();
+
+  const { speak, voices } = useSpeechSynthesis({
+    onEnd: () => {
+      setIsListening(true);
+      SpeechRecognition.startListening({
+        continuous: true,
+      });
+    }
+  });
 
   const moira = voices.find(({ name }: { name: string }) => name === 'Moira')
 
   const genNextIdea = useCycler(thingsToDo)
 
-
-  const commands: MyCommand[] = [
-    {
-      command: /(?:hello|are you there|are you awake)/,
-      callback: () => {
-        logAndSpeak({
-          text: 'Hi there!',
-          voice: moira
-        })
-      }
-    },
-    {
-      command: /where is the (.*) (?:shrine|train|chain)/,
-      callback: (shrineType: string) => {
-        logAndSpeak({
-          text: whereIsTheShrine(shrineType),
-          voice: moira
-        })
-      }
-    },
-
-    {
-      command: /where (?:is|are) the (.*)/,
-      callback: (item: string) => {
-        logAndSpeak({
-          text: whereIsThe(item),
-          voice: moira
-        })
-      }
-    },
-    {
-      command: /What (?:should|could|can) I do/,
-      callback: () => {
-        logAndSpeak({
-          text: genNextIdea()
-          , voice: moira
-        })
-      }
-    },
-
-    {
-      command: /tell me everything I (?:should|could|can) do/,
-      callback: () => {
-        logAndSpeak({
-          text: thingsToDo.join('.  ')
-          , voice: moira
-        })
-      }
-    },
-    {
-      command: /how (?:do|can) (?:you|i) make a? (.*)/,
-      callback: (thingToMake: string) => {
-        logAndSpeak({
-          text: howDoYouMake(thingToMake),
-          voice: moira
-        })
-      }
-    },
-    {
-      command: /What can (?:I|you) make/,
-      callback: () => {
-        logAndSpeak({
-          text: whatCanBeMade()
-          , voice: moira
-        })
-      }
-    }
-  ]
-
-  function logAndSpeak(obj: any) {
-    console.log('attempting to speak: ', obj)
-    speak(obj);
-
-  }
-
+  const commands = genCommands(logAndSpeak, genNextIdea);
   const { transcript, resetTranscript } = useSpeechRecognition({ commands })
+
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
       // Browser not supported & return some useful info.
       setVoiceRecognitionSupported(false)
+      return;
     }
-    else {
-      SpeechRecognition.startListening({
-        continuous: true,
-      });
 
-      setVoiceRecognitionSupported(true)
+    setIsListening(true);
+    SpeechRecognition.startListening({
+      continuous: true,
+    });
+    setVoiceRecognitionSupported(true)
+
+    function deregisterVoiceRecognition() {
+      console.log('deregistering voice recognition')
+      SpeechRecognition.stopListening();
     }
+    return deregisterVoiceRecognition;
   }, []);
 
+
+
+  interface SpeechInstructions {
+    text: string;
+    voice?: any;
+  }
+  function logAndSpeak(obj: { text: string }) {
+    const fullObj = { text: obj.text, voice: moira }
+    console.log('attempting to speak: ', fullObj)
+    setSpeechLog(prev => [...prev, fullObj.text]);
+    setIsListening(false);
+    SpeechRecognition.stopListening();
+    speak(fullObj);
+  }
 
   return (
     <div className="App">
 
-      ?  {isVoiceRecognitionSupported ?
-        'Voice recognition supported' :
-        'WARNING!: Voice recognition is unsupported on this browser.  Try google chrome.'}
+      <VoiceRecognitionSupportWarning {...{ isVoiceRecognitionSupported }} />
+
       <br />
       {firstClickDone ?
         <>
-          <div>Transcript: {transcript}</div>
-          <button onClick={() => speak({ text: 'I speak!', voice: moira })}>Speak</button>
-          <button onClick={resetTranscript}>Reset</button>
-          <StuffYouCanSay commands={commands} />
 
+          <div>Transcript: {transcript}</div>
+          <button onClick={() => logAndSpeak({ text: 'I speak!' })}>Speak</button>
+          <button onClick={resetTranscript}>Reset</button>
+          <div>Listening? {isListening ? 'YES' : 'NO'}</div>
+          <StuffYouCanSay commands={commands} />
+          <SpeechLog speechLog={speechLog} />
         </>
         :
         <><button onClick={() => { setFirstClickDone(true) }}>Click to start!</button>
         </>
       }
-    </div>
+    </div >
   );
 }
 
@@ -159,4 +113,29 @@ function StuffYouCanSay(props: StuffYouCanSayProps) {
       }
     </ul></div>
 
+}
+interface SpeechLogProps {
+  speechLog: string[];
+}
+
+function SpeechLog(props: SpeechLogProps) {
+  return (
+    <>
+      <h2>Here's what I've said recently</h2>
+      <div className='speechLog'>
+        {
+          [...props.speechLog].reverse().map((line, ix) => <li key={ix}>{line}</li>)
+        }
+      </div>
+    </>
+  );
+}
+
+
+function VoiceRecognitionSupportWarning({ isVoiceRecognitionSupported }: { isVoiceRecognitionSupported: boolean }) {
+  if (isVoiceRecognitionSupported) {
+    return <div>Voice recognition supported</div>;
+  } else {
+    return <div className='warning'>WARNING!: Voice recognition is unsupported on this browser.  Try google chrome.</div>
+  }
 }
