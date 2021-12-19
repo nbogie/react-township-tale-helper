@@ -18,14 +18,12 @@ import './App.css';
 
 function TownshipVoiceInterface() {
   const [isVoiceRecognitionSupported, setVoiceRecognitionSupported] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const [speechLog, setSpeechLog] = useState<string[]>([]);
   const [devLog, setDevLog] = useState<string[]>([]);
   const [firstClickDone, setFirstClickDone] = useState(false);
 
   const { speak, voices } = useSpeechSynthesis({
     onEnd: () => {
-      setIsListening(true);
       console.log('started listening after speaking')
       SpeechRecognition.startListening({
         continuous: true,
@@ -37,7 +35,7 @@ function TownshipVoiceInterface() {
 
   const commands = genCommands(logAndSpeak, genNextIdea);
   //@ts-ignore
-  const { transcript, resetTranscript, browserSupportsContinuousListening } = useSpeechRecognition({ commands })
+  const { transcript, resetTranscript, browserSupportsContinuousListening, listening } = useSpeechRecognition({ commands })
 
 
 
@@ -48,7 +46,6 @@ function TownshipVoiceInterface() {
       return;
     }
 
-    setIsListening(true);
     SpeechRecognition.startListening({
       continuous: true,
     });
@@ -70,12 +67,9 @@ function TownshipVoiceInterface() {
     const fullObj = { text: obj.text, voice: moira }
     console.log('attempting to speak: ', fullObj)
     setSpeechLog(prev => [...prev, fullObj.text]);
-    setIsListening(prev => {
-      if (!prev) {
-        setDevLog(prev => [...prev, "logAndSpeak called when we're already speaking. queue instead."]);
-      }
-      return false;
-    });
+    if (!listening) {
+      setDevLog(prev => [...prev, "logAndSpeak called when we're already speaking. queue instead."]);
+    }
     console.log('stopping listening because starting to speak')
     SpeechRecognition.abortListening();
     speak(fullObj);
@@ -93,7 +87,7 @@ function TownshipVoiceInterface() {
           <div>Transcript: {transcript}</div>
           <button onClick={() => logAndSpeak({ text: 'I speak!' })}>Speak</button>
           <button onClick={resetTranscript}>Reset</button>
-          <div>Listening? {isListening ? 'YES' : 'NO'}</div>
+          <div>Listening? {listening ? 'yes' : 'no'}</div>
           <StuffYouCanSay commands={commands} />
           <SpeechLog speechLog={speechLog} />
           <DevLog devLog={devLog} />
