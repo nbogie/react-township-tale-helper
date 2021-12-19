@@ -1,5 +1,11 @@
 //TODO: when chrome is speaking, turn off speech recognition!!
 
+
+// reach-speech-recognition (James Brill)
+// https://github.com/JamesBrill/react-speech-recognition#basic-example
+// React-speech-kit (for TTS)
+// https://www.npmjs.com/package/react-speech-kit#examples-and-demo
+
 import React, { useEffect, useState } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
