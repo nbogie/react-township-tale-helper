@@ -12,7 +12,7 @@ import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognitio
 //@ts-ignore
 import { useSpeechSynthesis } from 'react-speech-kit';
 import { useCycler } from '../utils';
-import { howDoYouMake, thingsToDo, whatCanBeMade, whereIsThe, whereIsTheShrine } from '../townshipInfo';
+import { thingsToDo } from '../townshipInfo';
 import { genCommands, MyCommand } from '../townshipCommands';
 import './App.css';
 
@@ -62,10 +62,6 @@ function TownshipVoiceInterface() {
 
 
 
-  interface SpeechInstructions {
-    text: string;
-    voice?: any;
-  }
   function logAndSpeak(obj: { text: string }) {
     const fullObj = { text: obj.text, voice: moira }
     console.log('attempting to speak: ', fullObj)
