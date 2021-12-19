@@ -71,7 +71,7 @@ export function genCommands(logAndSpeak: (obj: { text: string }) => void, genNex
             }
         },
         {
-            command: /how (?:do|can) (?:you|i) get (?:a )?(.*)/,
+            command: /(?:how|where) (?:do|can) (?:you|i) get (?:a )?(.*)/,
             callback: (desiredThing: string) => {
                 logAndSpeak({
                     text: howDoYouGet(desiredThing),
