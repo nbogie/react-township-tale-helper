@@ -1,3 +1,7 @@
+# voice assistant for township tale vr game
+
+[issues with continuous listening](https://github.com/JamesBrill/react-speech-recognition#continuous-listening)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
