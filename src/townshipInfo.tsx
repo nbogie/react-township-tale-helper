@@ -14,20 +14,23 @@ export function whereIsTheShrine(shrineName: string) {
 
 }
 
+const placesIKnowLookup: { [key: string]: string } = {
+    "camps": "Beyond the gotera.",
+    "cliffs": "through the dust bowl.",
+    "ponds": "to the right of the town hall.",
+    "well": "to the right of the town hall, then up and to the left.",
+    "mountain pass": "to the left of the town hall. it is signposted in town.",
+    "dust bowl": "it is signposted in town",
+    "televator": "high above the mines - take the road up to the right of the mines",
+}
+
+export function whereCanIGo() {
+    return Object.keys(placesIKnowLookup).join(' and ');
+}
 export function whereIsThe(item: string) {
     item = item.toLowerCase();
-    const lookup: { [key: string]: string } = {
-        "camps": "Beyond the gotera.",
-        "cliffs": "through the dust bowl.",
-        "ponds": "to the right of the town hall.",
-        "well": "to the right of the town hall, then up and to the left.",
-        "mountain pass": "to the left of the town hall. it is signposted in town.",
-        "dust bowl": "it is signposted in town",
-        "televator": "high above the mines - take the road up to the right of the mines",
-    }
-    const placesIKnow = Object.keys(lookup).join(' and ');
-    const answer = lookup[item];
-    return answer ?? ("I don't know of the place called " + item + ".  I know about" + placesIKnow);
+    const answer = placesIKnowLookup[item];
+    return answer ?? ("I don't know of the place called " + item);
 }
 
 export function howDoYouMake(item: string) {

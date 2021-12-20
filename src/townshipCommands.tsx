@@ -1,4 +1,4 @@
-import { howDoYouGet, howDoYouMake, thingsToDo, whatCanBeGotten, whatCanBeMade, whereIsThe, whereIsTheShrine } from "./townshipInfo"
+import { howDoYouGet, howDoYouMake, thingsToDo, whatCanBeGotten, whatCanBeMade, whereCanIGo, whereIsThe, whereIsTheShrine } from "./townshipInfo"
 
 export interface MyCommand {
     command: string | RegExp;
@@ -43,6 +43,14 @@ export function genCommands(logAndSpeak: (obj: { text: string }) => void, genNex
             }
         },
         {
+            command: /Where (?:should|could|can) I go/,
+            callback: () => {
+                logAndSpeak({
+                    text: whereCanIGo()
+                    ,
+                })
+            }
+        }, {
             command: /What (?:should|could|can) I do/,
             callback: () => {
                 logAndSpeak({
@@ -51,7 +59,6 @@ export function genCommands(logAndSpeak: (obj: { text: string }) => void, genNex
                 })
             }
         },
-
         {
             command: /tell me everything I (?:should|could|can) do/,
             callback: () => {
