@@ -22,6 +22,7 @@ const placesIKnowLookup: { [key: string]: string } = {
     "mountain pass": "to the left of the town hall. it is signposted in town.",
     "dust bowl": "it is signposted in town",
     "televator": "high above the mines - take the road up to the right of the mines",
+    "mines": "they are signposted in town"
 }
 
 export function whereCanIGo() {
@@ -73,7 +74,13 @@ const gettableThingsLookup: { [key: string]: string } = {
     "gold": "Kill turabadas in the mines.   Or, go deep in the mines.",
     "wood": "In the forest with the gotera, or the cliffs beyond the dust bowl.",
     "stone": "It depends where you have mined already.  It doesn't grow back!",
-    "food": "In the presents at the town hall.  Or at the camps.",
+    "food": "In the presents at the town hall, or at the camps.",
+    "pumpkins": "In the Gotera's wooded valley.",
+    "carrots": "In the Gotera's wooded valley.",
+    "tomatoes": "In the Gotera's wooded valley.",
+    "onions": "In the Gotera's wooded valley or the camps beyond.",
+    "eggplant": "In the plains near the camps, beyond the Gotera.",
+    "potatoes": "I'm not sure they grow anywhere reliably on the quest.",
 }
 
 export const thingsToDo = [
