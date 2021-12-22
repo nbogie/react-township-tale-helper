@@ -1,4 +1,5 @@
-import { howDoYouGet, howDoYouMake, thingsToDo, whatCanBeGotten, whatCanBeMade, whereCanIGo, whereIsThe, whereIsTheShrine } from "./townshipInfo"
+import { howDoYouGet, howDoYouMake, howDoYouNavigateLevel, thingsToDo, whatCanBeGotten, whatCanBeMade, whereCanIGo, whereIsThe, whereIsTheShrine } from "./townshipInfo"
+import { wordToNumberMap } from "./townshipMinesMap";
 
 export interface MyCommand {
     command: string | RegExp;
@@ -104,6 +105,21 @@ export function genCommands(logAndSpeak: (obj: { text: string }) => void, genNex
                     ,
                 })
             }
-        }
+        },
+
+        {
+            command: /(?:how) (?:do|can) (?:you|i) navigate level ?(.*)/,
+            callback: (levelName: string) => {
+                const levelNum: number = wordToNumberMap[levelName] ?? parseInt(levelName);
+                console.log("navigation: ", { levelNum, levelName })
+                if (levelNum > 0) {
+                    logAndSpeak({
+                        text: howDoYouNavigateLevel(levelNum),
+                    })
+                } else {
+                    logAndSpeak({ text: 'Unrecognised level number: ' + levelName });
+                }
+            }
+        },
     ]
 };

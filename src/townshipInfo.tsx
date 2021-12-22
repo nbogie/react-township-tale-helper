@@ -1,3 +1,4 @@
+import { minesMap } from "./townshipMinesMap";
 
 
 export function whereIsTheShrine(shrineName: string) {
@@ -54,6 +55,18 @@ export function whatCanBeMade() {
 export function whatCanBeGotten() {
     return Object.keys(gettableThingsLookup).join(', ');
 }
+export function howDoYouNavigateLevel(levelNum: number) {
+
+    const level = minesMap[levelNum];
+
+    if (level) {
+        const instructions = level.toExit;
+        return "Level " + levelNum + ": " + instructions;
+    } else {
+        return "I don't have a map of level: " + levelNum;
+    }
+}
+
 const makeableThingsLookup: { [key: string]: string } = {
     "red iron": "smelt 2 iron ore with 3 copper ore",
     "hoarder bag": "3 large leather rolls and 23 buckles",
