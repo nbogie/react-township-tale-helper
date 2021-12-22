@@ -65,7 +65,7 @@ const makeableThingsLookup: { [key: string]: string } = {
     "de-smelter": "50 Iron Ingots and 30 coal",
     "backpack assembler": "20 Iron Ingots",
     "televator": "200 stone and 60 crystal",
-
+    "stew": `bring water to boil. Add ingredient one - await chunks, await yellow spark.  Add 2nd item, await chunks but no spark. Add 3rd item, await chunks but no spark.  Add 4th, await chunks, await yellow spark. Await a second spark - this one white.  This may take a while. Remove cauldron from heat.  Wait for boil to stop.  Dip container in, upright.`
 }
 
 const gettableThingsLookup: { [key: string]: string } = {
@@ -73,7 +73,7 @@ const gettableThingsLookup: { [key: string]: string } = {
     "iron": "Kill turabadas in the mines or beyond. Or, go deep in the mines. Also, find buckets.",
     "gold": "Kill turabadas in the mines.   Or, go deep in the mines.",
     "wood": "In the forest with the gotera, or the cliffs beyond the dust bowl.",
-    "stone": "It depends where you have mined already.  It doesn't grow back!",
+    "stone": "In the dust bowl or steps, or in the mines?  It depends where you have mined already.  It doesn't grow back!",
     "food": "In the presents at the town hall, or at the camps.",
     "pumpkins": "In the Gotera's wooded valley.",
     "carrots": "In the Gotera's wooded valley.",
